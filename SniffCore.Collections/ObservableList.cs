@@ -11,36 +11,64 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace SniffCore.Collections
 {
+    /// <summary>
+    ///     A list implementing <see cref="INotifyCollectionChanged" />, <see cref="INotifyPropertyChanging" /> and
+    ///     <see cref="INotifyCollectionChanged" />.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
         private bool _catchPropertyChanged;
         private DisableNotifications _disableNotify;
         private IInvokator _invokator;
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="ObservableList{T}" />.
+        /// </summary>
         public ObservableList()
         {
             Invokator = new DirectInvokator();
         }
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="ObservableList{T}" />.
+        /// </summary>
+        /// <param name="invokator">The invokator how to do actions on the list.</param>
         public ObservableList(IInvokator invokator)
         {
             Invokator = invokator;
         }
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="ObservableList{T}" />.
+        /// </summary>
+        /// <param name="collection">The source collection to take over the items from.</param>
         public ObservableList(IEnumerable<T> collection)
             : base(collection.ToList())
         {
             Invokator = new DirectInvokator();
         }
 
+        /// <summary>
+        ///     Creates a new instance of <see cref="ObservableList{T}" />.
+        /// </summary>
+        /// <param name="invokator">The invokator how to do actions on the list.</param>
+        /// <param name="collection">The source collection to take over the items from.</param>
         public ObservableList(IInvokator invokator, IEnumerable<T> collection)
             : base(collection.ToList())
         {
             Invokator = invokator;
         }
 
+        /// <summary>
+        ///     Gets or sets the invokator to use for actions on the collection.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The Invokator cannot be set to null.</exception>
         public IInvokator Invokator
         {
             get => _invokator;
@@ -52,6 +80,10 @@ namespace SniffCore.Collections
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the value indicating of the <see cref="INotifyPropertyChanged.PropertyChanged" /> is taken from the
+        ///     elements in the collection and forwarded by <see cref="ItemPropertyChanged" />.
+        /// </summary>
         public bool CatchPropertyChanged
         {
             get => _catchPropertyChanged;
@@ -67,19 +99,40 @@ namespace SniffCore.Collections
             }
         }
 
+        /// <summary>
+        ///     Raised of the collection has been changed.
+        /// </summary>
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
+        /// <summary>
+        ///     Raised of a property has been changed.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        ///     Raised of a property is about to change.
+        /// </summary>
         public event PropertyChangingEventHandler PropertyChanging;
 
+        /// <summary>
+        ///     Raised the forwarded <see cref="INotifyPropertyChanged.PropertyChanged" /> from an element of the list.
+        /// </summary>
         public event EventHandler<PropertyChangedEventArgs> ItemPropertyChanged;
 
+        /// <summary>
+        ///     Moves an item from one to another position in the list.
+        /// </summary>
+        /// <param name="oldIndex">The old index of the item.</param>
+        /// <param name="newIndex">The new index of the item.</param>
         public virtual void Move(int oldIndex, int newIndex)
         {
             MoveItem(oldIndex, newIndex);
         }
 
+        /// <summary>
+        ///     Adds multiple items to the collection.
+        /// </summary>
+        /// <param name="items">The items to add.</param>
         public virtual void AddRange(IEnumerable<T> items)
         {
             _invokator.Invoke(() =>
@@ -101,11 +154,21 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Swaps two items in the collection.
+        /// </summary>
+        /// <param name="item1">The first item.</param>
+        /// <param name="item2">The second item.</param>
         public virtual void Swap(T item1, T item2)
         {
             Swap(IndexOf(item1), IndexOf(item2));
         }
 
+        /// <summary>
+        ///     Swaps two items in the collection by their index.
+        /// </summary>
+        /// <param name="index1">The index of the first item.</param>
+        /// <param name="index2">The index of the second item.</param>
         public virtual void Swap(int index1, int index2)
         {
             _invokator.Invoke(() =>
@@ -122,6 +185,9 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Removes all items from the collection.
+        /// </summary>
         protected override void ClearItems()
         {
             _invokator.Invoke(() =>
@@ -138,6 +204,11 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Inserts a new item into the collection on a specific index.
+        /// </summary>
+        /// <param name="index">The index where to add the item.</param>
+        /// <param name="item">The new item to add.</param>
         protected override void InsertItem(int index, T item)
         {
             _invokator.Invoke(() =>
@@ -154,18 +225,32 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Removes the first items from the collection the condition matches.
+        /// </summary>
+        /// <param name="condition">The match condition.</param>
+        /// <returns>True if an item got removed; otherwise false.</returns>
         public virtual bool Remove(Func<T, bool> condition)
         {
             var itemToRemove = this.FirstOrDefault(condition);
             return itemToRemove != null && Remove(itemToRemove);
         }
 
+        /// <summary>
+        ///     Removes the last items from the collection the condition matches.
+        /// </summary>
+        /// <param name="condition">The match condition.</param>
+        /// <returns>True if an item got removed; otherwise false.</returns>
         public virtual bool RemoveLast(Func<T, bool> condition)
         {
             var itemToRemove = this.LastOrDefault(condition);
             return itemToRemove != null && Remove(itemToRemove);
         }
 
+        /// <summary>
+        ///     Removes all items from the collection the condition matches.
+        /// </summary>
+        /// <param name="condition">The match condition.</param>
         public virtual void RemoveAll(Func<T, bool> condition)
         {
             _invokator.Invoke(() =>
@@ -185,6 +270,11 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Removes given amount of items starting at the given position.
+        /// </summary>
+        /// <param name="index">The position where to start removal.</param>
+        /// <param name="count">The amount of items to remove.</param>
         public virtual void RemoveRange(int index, int count)
         {
             _invokator.Invoke(() =>
@@ -207,6 +297,9 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Sorts the items in the collection.
+        /// </summary>
         public virtual void Sort()
         {
             _invokator.Invoke(() =>
@@ -224,6 +317,10 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Sorts the collection by the given <see cref="IComparer{T}" />.
+        /// </summary>
+        /// <param name="comparer">The <see cref="IComparer{T}" /> to be used when sort.</param>
         public virtual void Sort(IComparer<T> comparer)
         {
             _invokator.Invoke(() =>
@@ -241,6 +338,10 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Sorts the collection by the given <see cref="Comparison{T}" />.
+        /// </summary>
+        /// <param name="comparison">The <see cref="Comparison{T}" /> to be used when sort.</param>
         public virtual void Sort(Comparison<T> comparison)
         {
             _invokator.Invoke(() =>
@@ -258,6 +359,12 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Sorts the elements in the collection for the given amount in the given position by a <see cref="IComparer{T}" />.
+        /// </summary>
+        /// <param name="index">The index where to start the sorting from.</param>
+        /// <param name="count">The amount of elements to sort.</param>
+        /// <param name="comparer">The <see cref="IComparer{T}" /> to be used when sort.</param>
         public virtual void Sort(int index, int count, IComparer<T> comparer)
         {
             _invokator.Invoke(() =>
@@ -275,6 +382,11 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Sorts the collection by the given sorting func.
+        /// </summary>
+        /// <typeparam name="TKey">The key of the items in the collection.</typeparam>
+        /// <param name="sorter">The sorter func to use.</param>
         public virtual void Sort<TKey>(Func<T, TKey> sorter)
         {
             _invokator.Invoke(() =>
@@ -291,6 +403,9 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Reverses the items in the collection.
+        /// </summary>
         public virtual void Reverse()
         {
             _invokator.Invoke(() =>
@@ -307,6 +422,10 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Removes the element from the given position in the collection.
+        /// </summary>
+        /// <param name="index"></param>
         protected override void RemoveItem(int index)
         {
             _invokator.Invoke(() =>
@@ -325,6 +444,11 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Replaces the item in the collection on the given index.
+        /// </summary>
+        /// <param name="index">The index which item to replace.</param>
+        /// <param name="item">The new item to set.</param>
         protected override void SetItem(int index, T item)
         {
             _invokator.Invoke(() =>
@@ -342,6 +466,11 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Moves an item in the collection from one to another position.
+        /// </summary>
+        /// <param name="oldIndex">The old position of the item in the collection.</param>
+        /// <param name="newIndex">The new position of the item in the collection.</param>
         protected virtual void MoveItem(int oldIndex, int newIndex)
         {
             _invokator.Invoke(() =>
@@ -358,6 +487,14 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Stops raising of <see cref="CollectionChanged" />, <see cref="PropertyChanging" /> and
+        ///     <see cref="PropertyChanged" /> till the return value is disposed.
+        ///     After the return object got disposed the dictionary raises <see cref="PropertyChanged" />,
+        ///     <see cref="PropertyChanging" /> and <see cref="CollectionChanged" /> with
+        ///     <see cref="NotifyCollectionChangedAction.Reset" />.
+        /// </summary>
+        /// <returns></returns>
         public IDisposable DisableNotifications()
         {
             _disableNotify = new DisableNotifications();
@@ -378,18 +515,30 @@ namespace SniffCore.Collections
             });
         }
 
+        /// <summary>
+        ///     Raises <see cref="PropertyChanging" />.
+        /// </summary>
+        /// <param name="propertyName">The name of the property to change.</param>
         protected virtual void OnPropertyChanging(string propertyName)
         {
             if (_disableNotify == null)
                 PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
+        /// <summary>
+        ///     Raises <see cref="PropertyChanged" />.
+        /// </summary>
+        /// <param name="propertyName">The name of the property which is about to change.</param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
             if (_disableNotify == null)
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        ///     Raises <see cref="CollectionChanged" />.
+        /// </summary>
+        /// <param name="e">The event args to raise with.</param>
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             if (_disableNotify == null)
