@@ -398,9 +398,11 @@ namespace SniffCore.Collections
 
         private void CatchItemPropertyChanged(T item)
         {
-            if (CatchPropertyChanged)
-                if (item is INotifyPropertyChanged notifyItem)
-                    notifyItem.PropertyChanged += NotifyItemPropertyChanged;
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged += NotifyItemPropertyChanged;
         }
 
         private void IgnoreItemPropertyChanged()
@@ -411,9 +413,11 @@ namespace SniffCore.Collections
 
         private void IgnoreItemPropertyChanged(T item)
         {
-            if (CatchPropertyChanged)
-                if (item is INotifyPropertyChanged notifyItem)
-                    notifyItem.PropertyChanged -= NotifyItemPropertyChanged;
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged -= NotifyItemPropertyChanged;
         }
 
         private void NotifyItemPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -136,24 +136,23 @@ namespace SniffCore.Collections
 
         public new bool Remove(TKey key)
         {
-            if (ContainsKey(key))
+            if (!ContainsKey(key))
+                return false;
+
+            _invokator.Invoke(() =>
             {
-                _invokator.Invoke(() =>
-                {
-                    OnPropertyChanging(nameof(Count));
-                    OnPropertyChanging(Binding.IndexerName);
+                OnPropertyChanging(nameof(Count));
+                OnPropertyChanging(Binding.IndexerName);
 
-                    var oldItem = base[key];
-                    base.Remove(key);
+                var oldItem = base[key];
+                base.Remove(key);
 
-                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem));
-                    OnPropertyChanged(nameof(Count));
-                    OnPropertyChanged(Binding.IndexerName);
-                });
-                return true;
-            }
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem));
+                OnPropertyChanged(nameof(Count));
+                OnPropertyChanged(Binding.IndexerName);
+            });
 
-            return false;
+            return true;
         }
 
         public new void Add(TKey key, TValue value)
@@ -197,7 +196,12 @@ namespace SniffCore.Collections
         {
             _disableNotify.Disposed -= OnDisableNotifyDisposed;
             _disableNotify = null;
-            _invokator.Invoke(() => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset)));
+            _invokator.Invoke(() =>
+            {
+                OnPropertyChanged(nameof(Count));
+                OnPropertyChanged(Binding.IndexerName);
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            });
         }
 
         protected virtual void OnPropertyChanging(string propertyName)

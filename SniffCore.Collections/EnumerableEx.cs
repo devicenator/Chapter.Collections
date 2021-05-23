@@ -31,6 +31,9 @@ namespace SniffCore.Collections
 
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> elements)
         {
+            if (elements == null)
+                throw new ArgumentNullException(nameof(elements));
+
             return elements.OrderBy(x => Guid.NewGuid());
         }
     }
