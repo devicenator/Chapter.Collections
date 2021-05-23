@@ -160,6 +160,12 @@ namespace SniffCore.Collections
             return itemToRemove != null && Remove(itemToRemove);
         }
 
+        public virtual bool RemoveLast(Func<T, bool> condition)
+        {
+            var itemToRemove = this.LastOrDefault(condition);
+            return itemToRemove != null && Remove(itemToRemove);
+        }
+
         public virtual void RemoveAll(Func<T, bool> condition)
         {
             _invokator.Invoke(() =>
