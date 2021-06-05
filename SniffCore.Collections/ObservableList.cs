@@ -20,7 +20,7 @@ namespace SniffCore.Collections
     ///     A list implementing <see cref="INotifyCollectionChanged" />, <see cref="INotifyPropertyChanging" /> and
     ///     <see cref="INotifyCollectionChanged" />.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the items in the list.</typeparam>
     public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
         private bool _catchPropertyChanged;
