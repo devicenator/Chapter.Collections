@@ -311,7 +311,7 @@ namespace SniffCore.Collections
         /// <param name="propertyName">The name of the property to change.</param>
         protected virtual void OnPropertyChanging(string propertyName)
         {
-            if (_disableNotify != null)
+            if (_disableNotify == null)
                 PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
@@ -321,7 +321,7 @@ namespace SniffCore.Collections
         /// <param name="propertyName">The name of the property which is about to change.</param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            if (_disableNotify != null)
+            if (_disableNotify == null)
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -331,7 +331,7 @@ namespace SniffCore.Collections
         /// <param name="e">The event args to raise with.</param>
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            if (_disableNotify != null)
+            if (_disableNotify == null)
                 CollectionChanged?.Invoke(this, e);
         }
     }
