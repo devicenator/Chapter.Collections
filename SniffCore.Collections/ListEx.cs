@@ -31,11 +31,11 @@ namespace SniffCore.Collections
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
-            var item = list.FirstOrDefault(condition);
-            if (Equals(item, null))
-                return -1;
+            for (var i = 0; i < list.Count; ++i)
+                if (condition(list[i]))
+                    return i;
 
-            return list.IndexOf(item);
+            return -1;
         }
 
         /// <summary>
@@ -55,11 +55,10 @@ namespace SniffCore.Collections
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
-            var item = list.LastOrDefault(condition);
-            if (Equals(item, null))
-                return -1;
-
-            return list.IndexOf(item);
+            for (var i = list.Count - 1; i >= 0; --i)
+                if (condition(list[i]))
+                    return i;
+            return -1;
         }
 
         /// <summary>
