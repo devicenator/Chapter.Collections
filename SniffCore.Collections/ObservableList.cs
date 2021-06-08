@@ -243,8 +243,11 @@ namespace SniffCore.Collections
         /// <returns>True if an item got removed; otherwise false.</returns>
         public virtual bool RemoveLast(Func<T, bool> condition)
         {
-            var itemToRemove = this.LastOrDefault(condition);
-            return itemToRemove != null && Remove(itemToRemove);
+            var index = this.LastIndexOf(condition);
+            if (index == -1)
+                return false;
+            RemoveAt(index);
+            return true;
         }
 
         /// <summary>
@@ -255,18 +258,24 @@ namespace SniffCore.Collections
         {
             _invokator.Invoke(() =>
             {
-                var removedItems = this.Where(condition).ToArray();
-                if (!removedItems.Any())
-                    return;
-
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
-                removedItems.ForEach(x => Remove(x));
-
+                var removed = new List<T>();
+                for (var i = 0; i < Count; i++)
+                {
+                    var item = Items[i];
+                    if (condition(item))
+                    {
+                        removed.Add(item);
+                        IgnoreItemPropertyChanged(item);
+                        base.RemoveItem(i--);
+                    }
+                }
+                
                 OnPropertyChanged(nameof(Count));
                 OnPropertyChanged(Binding.IndexerName);
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed));
             });
         }
 
@@ -288,7 +297,7 @@ namespace SniffCore.Collections
                     var item = Items[index];
                     removedItems.Add(item);
                     IgnoreItemPropertyChanged(item);
-                    Items.RemoveAt(index);
+                    base.RemoveItem(index);
                 }
 
                 OnPropertyChanged(nameof(Count));
@@ -308,9 +317,12 @@ namespace SniffCore.Collections
 
                 var items = Items.ToList();
                 items.Sort();
-                Items.Clear();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -329,9 +341,12 @@ namespace SniffCore.Collections
 
                 var items = Items.ToList();
                 items.Sort(comparer);
-                Items.Clear();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -350,9 +365,12 @@ namespace SniffCore.Collections
 
                 var items = Items.ToList();
                 items.Sort(comparison);
-                Items.Clear();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -373,9 +391,12 @@ namespace SniffCore.Collections
 
                 var items = Items.ToList();
                 items.Sort(index, count, comparer);
-                Items.Clear();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -393,10 +414,13 @@ namespace SniffCore.Collections
             {
                 OnPropertyChanging(Binding.IndexerName);
 
-                var items = Items.OrderBy(sorter);
-                Items.Clear();
+                var items = Items.OrderBy(sorter).ToList();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -412,10 +436,13 @@ namespace SniffCore.Collections
             {
                 OnPropertyChanging(Binding.IndexerName);
 
-                var items = Items.Reverse();
-                Items.Clear();
+                var items = Items.Reverse().ToList();
+                base.ClearItems();
                 foreach (var item in items)
-                    Items.Add(item);
+                {
+                    var index = Items.Count;
+                    base.InsertItem(index, item);
+                }
 
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
