@@ -21,9 +21,13 @@ namespace SniffCore.Collections
         /// <param name="list">The list to gets the index from.</param>
         /// <param name="condition">The match condition.</param>
         /// <returns>The index of the first matched item; otherwise -1.</returns>
+        /// <exception cref="ArgumentNullException">list is null.</exception>
         /// <exception cref="ArgumentNullException">condition is null.</exception>
         public static int IndexOf<T>(this IList<T> list, Func<T, bool> condition)
         {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
@@ -41,9 +45,13 @@ namespace SniffCore.Collections
         /// <param name="list">The list to gets the index from.</param>
         /// <param name="condition">The match condition.</param>
         /// <returns>The index of the last matched item; otherwise -1.</returns>
+        /// <exception cref="ArgumentNullException">list is null.</exception>
         /// <exception cref="ArgumentNullException">condition is null.</exception>
         public static int LastIndexOf<T>(this IList<T> list, Func<T, bool> condition)
         {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
@@ -62,8 +70,12 @@ namespace SniffCore.Collections
         /// <param name="list">The list to split.</param>
         /// <param name="amounts">The maximum amount of items in a list.</param>
         /// <returns>A list of lists with the items.</returns>
+        /// <exception cref="ArgumentNullException">list is null.</exception>
         public static List<List<T>> Split<T>(this List<T> list, uint amounts)
         {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             if (amounts == 0)
                 throw new ArgumentException("amounts cannot be 0", nameof(amounts));
 
@@ -89,8 +101,12 @@ namespace SniffCore.Collections
         /// <typeparam name="T">The inner type of the list.</typeparam>
         /// <param name="list">The list to shuffle.</param>
         /// <returns>The items shuffled into a new list.</returns>
+        /// <exception cref="ArgumentNullException">list is null.</exception>
         public static List<T> Shuffle<T>(this List<T> list)
         {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             return list.OrderBy(x => Guid.NewGuid()).ToList();
         }
 
@@ -100,8 +116,12 @@ namespace SniffCore.Collections
         /// <typeparam name="T">The inner type of the list.</typeparam>
         /// <param name="list">The list to shuffle.</param>
         /// <returns>The items shuffled into a new list.</returns>
+        /// <exception cref="ArgumentNullException">list is null.</exception>
         public static IList<T> Shuffle<T>(this IList<T> list)
         {
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
             return list.OrderBy(x => Guid.NewGuid()).ToList();
         }
     }

@@ -37,9 +37,13 @@ namespace SniffCore.Collections
         /// <typeparam name="T">The inner type of the <see cref="IEnumerable{T}" />.</typeparam>
         /// <param name="elements">The collection to loop.</param>
         /// <param name="action">The action to call for each element.</param>
+        /// <exception cref="ArgumentNullException">elements is null.</exception>
         /// <exception cref="ArgumentNullException">action is null.</exception>
         public static void ForEach<T>(this IEnumerable<T> elements, Action<T> action)
         {
+            if (elements == null)
+                throw new ArgumentNullException(nameof(elements));
+
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
 
