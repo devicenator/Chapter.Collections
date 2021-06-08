@@ -22,7 +22,7 @@ namespace SniffCore.Collections
         /// <param name="count">The expected amount of elements in the collection.</param>
         /// <returns>A new <see cref="IEnumerable{T}" />.</returns>
         /// <exception cref="ArgumentNullException">elementCallback is null.</exception>
-        public static IEnumerable<TResult> Repeat<TResult>(Func<TResult> elementCallback, int count)
+        public static IEnumerable<TResult> Repeat<TResult>(Func<TResult> elementCallback, uint count)
         {
             if (elementCallback == null)
                 throw new ArgumentNullException(nameof(elementCallback));

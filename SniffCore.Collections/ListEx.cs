@@ -62,18 +62,22 @@ namespace SniffCore.Collections
         /// <param name="list">The list to split.</param>
         /// <param name="amounts">The maximum amount of items in a list.</param>
         /// <returns>A list of lists with the items.</returns>
-        public static List<List<T>> Split<T>(this List<T> list, int amounts)
+        public static List<List<T>> Split<T>(this List<T> list, uint amounts)
         {
+            if (amounts == 0)
+                throw new ArgumentException("amounts cannot be 0", nameof(amounts));
+
+            var amount = (int) amounts;
             var lists = new List<List<T>>();
             var index = 0;
             while (index < list.Count)
             {
-                var count = amounts;
+                var count = amount;
                 if (list.Count - index <= amounts)
                     count = list.Count - index;
 
                 lists.Add(list.GetRange(index, count));
-                index += amounts;
+                index += amount;
             }
 
             return lists;
