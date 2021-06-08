@@ -195,8 +195,8 @@ namespace SniffCore.Collections
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
-                base.ClearItems();
                 IgnoreItemPropertyChanged();
+                base.ClearItems();
 
                 OnPropertyChanged(nameof(Count));
                 OnPropertyChanged(Binding.IndexerName);
@@ -435,8 +435,8 @@ namespace SniffCore.Collections
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
-                base.RemoveItem(index);
                 IgnoreItemPropertyChanged(removedItem);
+                base.RemoveItem(index);
 
                 OnPropertyChanged(nameof(Count));
                 OnPropertyChanged(Binding.IndexerName);
