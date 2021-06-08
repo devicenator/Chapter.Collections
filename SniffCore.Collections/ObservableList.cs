@@ -91,11 +91,11 @@ namespace SniffCore.Collections
             {
                 if (_catchPropertyChanged == value)
                     return;
+                _catchPropertyChanged = value;
                 if (value)
                     CatchItemPropertyChanged();
-                else if (_catchPropertyChanged)
+                else
                     IgnoreItemPropertyChanged();
-                _catchPropertyChanged = value;
             }
         }
 
@@ -548,7 +548,8 @@ namespace SniffCore.Collections
         private void CatchItemPropertyChanged()
         {
             if (CatchPropertyChanged)
-                this.ForEach(CatchItemPropertyChanged);
+                for (var i = 0; i < Count; ++i)
+                    CatchItemPropertyChanged(Items[i]);
         }
 
         private void CatchItemPropertyChanged(T item)
@@ -562,8 +563,8 @@ namespace SniffCore.Collections
 
         private void IgnoreItemPropertyChanged()
         {
-            if (CatchPropertyChanged)
-                this.ForEach(IgnoreItemPropertyChanged);
+            for (var i = 0; i < Count; ++i)
+                IgnoreItemPropertyChanged(Items[i]);
         }
 
         private void IgnoreItemPropertyChanged(T item)
