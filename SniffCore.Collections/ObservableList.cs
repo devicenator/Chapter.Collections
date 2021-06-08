@@ -21,6 +21,57 @@ namespace SniffCore.Collections
     ///     <see cref="INotifyCollectionChanged" />.
     /// </summary>
     /// <typeparam name="T">The type of the items in the list.</typeparam>
+    /// <example>
+    ///     <code lang="XAML">
+    /// <![CDATA[
+    /// <ListBox ItemsSource="{Binding Items}">
+    ///     <ListBox.ItemsTemplate>
+    ///         <DataTemplate>
+    ///             <TextBlock Text="{Binding }" />
+    ///         </DataTemplate>
+    ///     </ListBox.ItemsTemplate>
+    /// </ListBox>
+    /// ]]>
+    /// </code>
+    ///     <code lang="csharp">
+    /// <![CDATA[
+    /// public class ViewModel : ObservableObject
+    /// {
+    ///     public ViewModel()
+    ///     {
+    ///         Items = new ObservableList<string>(new DispatcherInvokator());
+    ///         Items.CatchPropertyChanged = true;
+    ///         Items.ItemPropertyChanged += OnItemPropertyChanged;
+    ///     }
+    /// 
+    ///     public ObservableList<string> Items { get; }
+    /// 
+    ///     private void OnItemPropertyChanged(string sender, PropertyChangedEventArgs e)
+    ///     {
+    ///         // var item = sender.ToString();
+    ///         // e.PropertyName
+    ///     }
+    /// 
+    ///     public void Add(params string[] items)
+    ///     {
+    ///         Items.AddRange(items);
+    ///         Items.Sort();
+    ///     }
+    /// 
+    ///     public void Clear()
+    ///     {
+    ///         using (Items.DisableNotifications())
+    ///             Items.Clear();
+    ///     }
+    /// 
+    ///     private void RemoveAll()
+    ///     {
+    ///         Items.RemoveAll(x => Matches(x));
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
         private bool _catchPropertyChanged;

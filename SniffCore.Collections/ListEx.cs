@@ -12,6 +12,23 @@ namespace SniffCore.Collections
     /// <summary>
     ///     Extends a <see cref="List{T}" /> or <see cref="IList{T}" /> with useful methods.
     /// </summary>
+    /// <example>
+    ///     <code lang="csharp">
+    /// <![CDATA[
+    /// // Gets the position of the first matched element
+    /// var index = items.IndexOf(x => Matches(x));
+    /// 
+    /// // Gets the position of the last matched element
+    /// var index = items.LastIndexOf(x => Matches(x));
+    /// 
+    /// // Splits the list in multiple list with 10 items each
+    /// var batches = items.Split(10);
+    /// 
+    /// // Shuffles the items
+    /// items = items.Shuffle();
+    /// ]]>
+    /// </code>
+    /// </example>
     public static class ListEx
     {
         /// <summary>

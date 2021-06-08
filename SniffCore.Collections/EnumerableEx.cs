@@ -12,6 +12,20 @@ namespace SniffCore.Collections
     /// <summary>
     ///     Provides additional actions on an <see cref="IEnumerable{T}" />.
     /// </summary>
+    /// <example>
+    ///     <code lang="csharp">
+    /// <![CDATA[
+    /// // Generate 20 new GUIDs
+    /// var guids = EnumerableEx.Repeat(() => Guid.NewGuid(), 20);
+    /// 
+    /// // Call "DoSomething" 20 times
+    /// Enumerable.Repeat(0, 20).ForEach(x => DoSomething());
+    /// 
+    /// // Creates a shuffled list of numbers from 0 to 20
+    /// var numbers = Enumerable.Range(0, 20).Shuffle();
+    /// ]]>
+    /// </code>
+    /// </example>
     public static class EnumerableEx
     {
         /// <summary>

@@ -17,6 +17,48 @@ namespace SniffCore.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary key.</typeparam>
     /// <typeparam name="TValue">The type of the dictionary value.</typeparam>
+    /// <example>
+    ///     <code lang="XAML">
+    /// <![CDATA[
+    /// <ListBox ItemsSource="{Binding Items}">
+    ///     <ListBox.ItemsTemplate>
+    ///         <DataTemplate>
+    ///             <TextBlock Text="{Binding Value}" />
+    ///         </DataTemplate>
+    ///     </ListBox.ItemsTemplate>
+    /// </ListBox>
+    /// ]]>
+    /// </code>
+    ///     <code lang="csharp">
+    /// <![CDATA[
+    /// public class ViewModel : ObservableObject
+    /// {
+    ///     public ViewModel()
+    ///     {
+    ///         Items = new ObservableDictionary<int, string>(new DispatcherInvokator());
+    ///     }
+    /// 
+    ///     public ObservableDictionary<int, string> Items { get; }
+    /// 
+    ///     public void Add(int no, string value)
+    ///     {
+    ///         Items[no] = value;
+    ///     }
+    /// 
+    ///     public void Remove(int no)
+    ///     {
+    ///         Items.Remove(no);
+    ///     }
+    /// 
+    ///     public void Clear()
+    ///     {
+    ///         using (Items.DisableNotifications())
+    ///             Items.Clear();
+    ///     }
+    /// }
+    /// ]]>
+    /// </code>
+    /// </example>
     public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
         private DisableNotifications _disableNotify;
