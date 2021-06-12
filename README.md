@@ -4,7 +4,7 @@ SniffCore.Collections
 SniffCore.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.
 
 ## How To
-* [Documentation](http://wiki.sniffcore.com)
+* [Documentation](http://documentation.sniffcore.com/)
 * [Website](http://sniffcore.com)
 
 ## License
