@@ -4,6 +4,7 @@ SniffCore.Collections
 SniffCore.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.
 
 ## How To
+* [NuGet](https://www.nuget.org/packages/SniffCore.Collections)
 * [Documentation](http://documentation.sniffcore.com/)
 * [Website](http://sniffcore.com)
 
