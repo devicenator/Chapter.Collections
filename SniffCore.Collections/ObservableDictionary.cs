@@ -36,9 +36,25 @@ namespace SniffCore.Collections
     ///     public ViewModel()
     ///     {
     ///         Items = new ObservableDictionary<int, string>(new DispatcherInvokator());
+    ///         Items.CatchPropertyChanged = true;
+    ///         Items.CatchPropertyChanging = true;
+    ///         Items.ItemPropertyChanged += OnItemPropertyChanged;
+    ///         Items.ItemPropertyChanging += OnItemPropertyChanging;
     ///     }
     /// 
     ///     public ObservableDictionary<int, string> Items { get; }
+    /// 
+    ///     private void OnItemPropertyChanged(string sender, PropertyChangedEventArgs e)
+    ///     {
+    ///         // var item = sender.ToString();
+    ///         // e.PropertyName
+    ///     }
+    /// 
+    ///     private void OnItemPropertyChanging(string sender, PropertyChangingEventArgs e)
+    ///     {
+    ///         // var item = sender.ToString();
+    ///         // e.PropertyName
+    ///     }
     /// 
     ///     public void Add(int no, string value)
     ///     {
@@ -61,6 +77,8 @@ namespace SniffCore.Collections
     /// </example>
     public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
+        private bool _catchPropertyChanged;
+        private bool _catchPropertyChanging;
         private DisableNotifications _disableNotify;
         private IInvokator _invokator;
 
@@ -206,6 +224,44 @@ namespace SniffCore.Collections
         }
 
         /// <summary>
+        ///     Gets or sets the value indicating of the <see cref="INotifyPropertyChanging.PropertyChanging" /> is taken from the
+        ///     elements in the collection and forwarded by <see cref="INotifyPropertyChanging" />.
+        /// </summary>
+        public bool CatchPropertyChanging
+        {
+            get => _catchPropertyChanging;
+            set
+            {
+                if (_catchPropertyChanging == value)
+                    return;
+                _catchPropertyChanging = value;
+                if (value)
+                    CatchItemPropertyChanging();
+                else
+                    IgnoreItemPropertyChanging();
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the value indicating of the <see cref="INotifyPropertyChanged.PropertyChanged" /> is taken from the
+        ///     elements in the collection and forwarded by <see cref="ItemPropertyChanged" />.
+        /// </summary>
+        public bool CatchPropertyChanged
+        {
+            get => _catchPropertyChanged;
+            set
+            {
+                if (_catchPropertyChanged == value)
+                    return;
+                _catchPropertyChanged = value;
+                if (value)
+                    CatchItemPropertyChanged();
+                else
+                    IgnoreItemPropertyChanged();
+            }
+        }
+
+        /// <summary>
         ///     Gets or sets the value for the given key.
         /// </summary>
         /// <param name="key">The key to associate with the value.</param>
@@ -224,6 +280,10 @@ namespace SniffCore.Collections
                         var oldItem = base[key];
                         base[key] = value;
 
+                        IgnoreItemPropertyChanging(oldItem);
+                        IgnoreItemPropertyChanged(oldItem);
+                        CatchItemPropertyChanging(value);
+                        CatchItemPropertyChanged(value);
                         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldItem));
                     }
                     else
@@ -231,6 +291,10 @@ namespace SniffCore.Collections
                         OnPropertyChanging(nameof(Count));
 
                         base[key] = value;
+                        CatchItemPropertyChanging(key);
+                        CatchItemPropertyChanged(key);
+                        CatchItemPropertyChanging(value);
+                        CatchItemPropertyChanged(value);
 
                         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
                         OnPropertyChanged(nameof(Count));
@@ -257,6 +321,16 @@ namespace SniffCore.Collections
         public event PropertyChangingEventHandler PropertyChanging;
 
         /// <summary>
+        ///     Raised the forwarded <see cref="INotifyPropertyChanging.PropertyChanging" /> from an element of the list.
+        /// </summary>
+        public event EventHandler<PropertyChangingEventArgs> ItemPropertyChanging;
+
+        /// <summary>
+        ///     Raised the forwarded <see cref="INotifyPropertyChanged.PropertyChanged" /> from an element of the list.
+        /// </summary>
+        public event EventHandler<PropertyChangedEventArgs> ItemPropertyChanged;
+
+        /// <summary>
         ///     Removes the element from the dictionary by its key.
         /// </summary>
         /// <param name="key">The key of the element to remove.</param>
@@ -273,6 +347,10 @@ namespace SniffCore.Collections
 
                 var oldItem = base[key];
                 base.Remove(key);
+                IgnoreItemPropertyChanging(key);
+                IgnoreItemPropertyChanged(key);
+                IgnoreItemPropertyChanging(oldItem);
+                IgnoreItemPropertyChanged(oldItem);
 
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem));
                 OnPropertyChanged(nameof(Count));
@@ -295,6 +373,10 @@ namespace SniffCore.Collections
                 OnPropertyChanging(Binding.IndexerName);
 
                 base.Add(key, value);
+                CatchItemPropertyChanging(key);
+                CatchItemPropertyChanged(key);
+                CatchItemPropertyChanging(value);
+                CatchItemPropertyChanged(value);
 
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
                 OnPropertyChanged(nameof(Count));
@@ -312,6 +394,8 @@ namespace SniffCore.Collections
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
+                IgnoreItemPropertyChanging();
+                IgnoreItemPropertyChanged();
                 base.Clear();
 
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -375,6 +459,130 @@ namespace SniffCore.Collections
         {
             if (_disableNotify == null)
                 CollectionChanged?.Invoke(this, e);
+        }
+
+        private void CatchItemPropertyChanging()
+        {
+            if (CatchPropertyChanging)
+                foreach (var (key, value) in this)
+                {
+                    CatchItemPropertyChanging(key);
+                    CatchItemPropertyChanging(value);
+                }
+        }
+
+        private void CatchItemPropertyChanging(TKey item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging += NotifyItemPropertyChanging;
+        }
+
+        private void CatchItemPropertyChanging(TValue item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging += NotifyItemPropertyChanging;
+        }
+
+        private void CatchItemPropertyChanged()
+        {
+            if (CatchPropertyChanged)
+                foreach (var (key, value) in this)
+                {
+                    CatchItemPropertyChanged(key);
+                    CatchItemPropertyChanged(value);
+                }
+        }
+
+        private void CatchItemPropertyChanged(TKey item)
+        {
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged += NotifyItemPropertyChanged;
+        }
+
+        private void CatchItemPropertyChanged(TValue item)
+        {
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged += NotifyItemPropertyChanged;
+        }
+
+        private void IgnoreItemPropertyChanging()
+        {
+            for (var i = 0; i < Count; ++i)
+                foreach (var (key, value) in this)
+                {
+                    IgnoreItemPropertyChanging(key);
+                    IgnoreItemPropertyChanging(value);
+                }
+        }
+
+        private void IgnoreItemPropertyChanging(TKey item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging -= NotifyItemPropertyChanging;
+        }
+
+        private void IgnoreItemPropertyChanging(TValue item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging -= NotifyItemPropertyChanging;
+        }
+
+        private void IgnoreItemPropertyChanged()
+        {
+            for (var i = 0; i < Count; ++i)
+                foreach (var (key, value) in this)
+                {
+                    IgnoreItemPropertyChanged(key);
+                    IgnoreItemPropertyChanged(value);
+                }
+        }
+
+        private void IgnoreItemPropertyChanged(TKey item)
+        {
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged -= NotifyItemPropertyChanged;
+        }
+
+        private void IgnoreItemPropertyChanged(TValue item)
+        {
+            if (!CatchPropertyChanged)
+                return;
+
+            if (item is INotifyPropertyChanged notifyItem)
+                notifyItem.PropertyChanged -= NotifyItemPropertyChanged;
+        }
+
+        private void NotifyItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            if (CatchPropertyChanging)
+                ItemPropertyChanging?.Invoke(sender, e);
+        }
+
+        private void NotifyItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (CatchPropertyChanged)
+                ItemPropertyChanged?.Invoke(sender, e);
         }
     }
 }

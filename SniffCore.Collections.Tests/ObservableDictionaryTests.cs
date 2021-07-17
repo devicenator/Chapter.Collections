@@ -12,15 +12,15 @@ namespace SniffCore.Collections.Tests
     [TestFixture]
     public class ObservableDictionaryTests
     {
-        private TestableInvokator _invokator;
-        private ObservableDictionary<int, string> _target;
-
         [SetUp]
         public void Setup()
         {
             _invokator = new TestableInvokator();
             _target = new ObservableDictionary<int, string>(_invokator);
         }
+
+        private TestableInvokator _invokator;
+        private ObservableDictionary<int, string> _target;
 
         [Test]
         public void Add_Called_UsesInvokator()
@@ -61,7 +61,7 @@ namespace SniffCore.Collections.Tests
         [Test]
         public void Add_Called_RaisesCollectionChangedWithAdd()
         {
-            AssertCollectionChanged(NotifyCollectionChangedAction.Add, null, new []{"five"}, -1, -1, () => _target.Add(5, "five"));
+            AssertCollectionChanged(NotifyCollectionChangedAction.Add, null, new[] {"five"}, -1, -1, () => _target.Add(5, "five"));
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace SniffCore.Collections.Tests
             _target[0] = "zero";
             _target[3] = "three";
 
-            AssertCollectionChanged(NotifyCollectionChangedAction.Replace, new []{"three"}, new []{"not three"}, -1, -1, () => _target[3] = "not three");
+            AssertCollectionChanged(NotifyCollectionChangedAction.Replace, new[] {"three"}, new[] {"not three"}, -1, -1, () => _target[3] = "not three");
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace SniffCore.Collections.Tests
             _target[0] = "zero";
             _target[5] = "five";
 
-            AssertCollectionChanged(NotifyCollectionChangedAction.Add, null, new []{"three"}, -1, -1, () => _target[3] = "three");
+            AssertCollectionChanged(NotifyCollectionChangedAction.Add, null, new[] {"three"}, -1, -1, () => _target[3] = "three");
         }
 
         [Test]
@@ -283,7 +283,7 @@ namespace SniffCore.Collections.Tests
             _target[0] = "zero";
             _target[5] = "five";
 
-            AssertCollectionChanged(NotifyCollectionChangedAction.Remove, new []{"five"}, null, -1, -1, () => _target.Remove(5));
+            AssertCollectionChanged(NotifyCollectionChangedAction.Remove, new[] {"five"}, null, -1, -1, () => _target.Remove(5));
         }
 
         [Test]
@@ -299,7 +299,7 @@ namespace SniffCore.Collections.Tests
             Assert.That(result, Is.False);
             Assert.That(value, Is.Null);
         }
-        
+
         [Test]
         public void DisableNotifications_Disposed_CallsResetEvents()
         {
@@ -388,6 +388,342 @@ namespace SniffCore.Collections.Tests
             {
                 AssertNoEvents(() => _target.Remove(5, out _));
             }
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOn_ForwardsForExistingItems()
+        {
+            var target = new ObservableDictionary<Item, Item>
+            {
+                {new Item(), new Item()},
+                {new Item(), new Item()}
+            };
+            target.CatchPropertyChanged = true;
+            var count = 0;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                ++count;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            foreach (var (key, value) in target)
+            {
+                key.OnPropertyChanged();
+                value.OnPropertyChanged();
+            }
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+            Assert.That(count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForExistingItems()
+        {
+            var target = new ObservableDictionary<Item, Item>
+            {
+                {new Item(), new Item()},
+                {new Item(), new Item()}
+            };
+            target.CatchPropertyChanging = true;
+            var count = 0;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                ++count;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            foreach (var (key, value) in target)
+            {
+                key.OnPropertyChanging();
+                value.OnPropertyChanging();
+            }
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(count, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOff_DoesNotForwardForExistingItems()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = true};
+            target[new Item()] = new Item();
+            var triggered = false;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            target.CatchPropertyChanged = false;
+
+            foreach (var (key, value) in target)
+            {
+                key.OnPropertyChanged();
+                value.OnPropertyChanged();
+            }
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForExistingItems()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanging = true};
+            target[new Item()] = new Item();
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.CatchPropertyChanging = false;
+
+            foreach (var (key, value) in target)
+            {
+                key.OnPropertyChanging();
+                value.OnPropertyChanging();
+            }
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForIndexerAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanging = false};
+            var key = new Item();
+            var value = new Item();
+            target[key] = value;
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            key.OnPropertyChanging();
+            value.OnPropertyChanging();
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOff_DoesNotForwardForIndexerAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = false};
+            var key = new Item();
+            var value = new Item();
+            target[key] = value;
+            var triggered = false;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            key.OnPropertyChanged();
+            value.OnPropertyChanged();
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForIndexerAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanging = true};
+            var key = new Item();
+            var value = new Item();
+            target[key] = value;
+            var count = 0;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                count++;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            key.OnPropertyChanging();
+            value.OnPropertyChanging();
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOn_ForwardsForIndexerAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = true};
+            var key = new Item();
+            var value = new Item();
+            target[key] = value;
+            var count = 0;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                count++;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            key.OnPropertyChanged();
+            value.OnPropertyChanged();
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForIndexerReplacedValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = true};
+            var key = new Item();
+            var value = new Item();
+            target[key] = value;
+            var count = 0;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                count++;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            target[key] = new Item();
+            value.OnPropertyChanged();
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+
+            Assert.That(count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanging = true};
+            var key = new Item();
+            var value = new Item();
+            var count = 0;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                count++;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Add(key, value);
+
+            key.OnPropertyChanging();
+            value.OnPropertyChanging();
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOn_ForwardsForAddedKeyAndValue()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = true};
+            var key = new Item();
+            var value = new Item();
+            var count = 0;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                count++;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            target.Add(key, value);
+
+            key.OnPropertyChanged();
+            value.OnPropertyChanged();
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForClearedKeysAndValues()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanging = true};
+            var key1 = new Item();
+            var value1 = new Item();
+            target[key1] = value1;
+            var key2 = new Item();
+            var value2 = new Item();
+            target[key2] = value2;
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Clear();
+
+            key1.OnPropertyChanging();
+            value1.OnPropertyChanging();
+            key2.OnPropertyChanging();
+            value2.OnPropertyChanging();
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanged_SetToOn_DoesNotForwardForClearedKeysAndValues()
+        {
+            var target = new ObservableDictionary<Item, Item> {CatchPropertyChanged = true};
+            var key1 = new Item();
+            var value1 = new Item();
+            target[key1] = value1;
+            var key2 = new Item();
+            var value2 = new Item();
+            target[key2] = value2;
+            var triggered = false;
+
+            void TargetOnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanged += TargetOnItemPropertyChanged;
+
+            target.Clear();
+
+            key1.OnPropertyChanged();
+            value1.OnPropertyChanged();
+            key2.OnPropertyChanged();
+            value2.OnPropertyChanged();
+
+            target.ItemPropertyChanged -= TargetOnItemPropertyChanged;
+            Assert.That(triggered, Is.False);
         }
 
         private Dictionary<int, string> ToDictionary(int keyOne, string valueOne)
@@ -548,6 +884,22 @@ namespace SniffCore.Collections.Tests
             public void Reset()
             {
                 Triggered = false;
+            }
+        }
+
+        private class Item : INotifyPropertyChanged, INotifyPropertyChanging
+        {
+            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangingEventHandler PropertyChanging;
+
+            public void OnPropertyChanged()
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Property"));
+            }
+
+            public void OnPropertyChanging()
+            {
+                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs("Property"));
             }
         }
     }
