@@ -12,6 +12,7 @@
     <PackageIcon>Icon.png</PackageIcon>
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/devicenator/SniffCore.Collections</RepositoryUrl>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
