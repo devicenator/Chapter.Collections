@@ -1548,6 +1548,318 @@ namespace SniffCore.Collections.Tests
         }
 
         [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForExistingItems()
+        {
+            var target = new ObservableList<Item>
+            {
+                new Item(),
+                new Item()
+            };
+            target.CatchPropertyChanging = true;
+            var count = 0;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                ++count;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target[0].OnPropertyChanging();
+            target[1].OnPropertyChanging();
+
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForAddItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Add(new Item());
+
+            target[0].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.True);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForAddRangeItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var count = 0;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                ++count;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.AddRange(new[] {new Item(), new Item()});
+
+            target[0].OnPropertyChanging();
+            target[1].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_ForwardsForInsertItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Insert(0, new Item());
+
+            target[0].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.True);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForRemoveItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item1 = new Item();
+            var item2 = new Item();
+            target.AddRange(new[] {item1, item2});
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Remove(item2);
+
+            item2.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForRemoveConditionItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item1 = new Item();
+            var item2 = new Item();
+            target.AddRange(new[] {item1, item2});
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Remove(x => true);
+
+            item1.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForRemoveAllItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item1 = new Item();
+            var item2 = new Item();
+            target.AddRange(new[] {item1, item2});
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.RemoveAll(x => true);
+
+            item1.OnPropertyChanging();
+            item2.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForRemoveLastItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item1 = new Item();
+            var item2 = new Item();
+            target.AddRange(new[] {item1, item2});
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.RemoveLast(x => true);
+
+            item2.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForRemoveRangeItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item1 = new Item();
+            var item2 = new Item();
+            var item3 = new Item();
+            var item4 = new Item();
+            target.AddRange(new[] {item1, item2, item3, item4});
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.RemoveRange(1, 2);
+
+            item2.OnPropertyChanging();
+            item3.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOn_DoesNotForwardForClearItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var item = new Item();
+            target.Add(item);
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.Clear();
+
+            item.OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForExistingItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            target.Add(new Item());
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.CatchPropertyChanging = false;
+
+            target[0].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForAddItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.CatchPropertyChanging = false;
+            target.Add(new Item());
+
+            target[0].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForAddRangeItems()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.CatchPropertyChanging = false;
+            target.AddRange(new[] {new Item(), new Item()});
+
+            target[0].OnPropertyChanging();
+            target[1].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
+        public void CatchPropertyChanging_SetToOff_DoesNotForwardForInsertItem()
+        {
+            var target = new ObservableList<Item> {CatchPropertyChanging = true};
+            var triggered = false;
+
+            void TargetOnItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                triggered = true;
+            }
+
+            target.ItemPropertyChanging += TargetOnItemPropertyChanging;
+
+            target.CatchPropertyChanging = false;
+            target.Insert(0, new Item());
+
+            target[0].OnPropertyChanging();
+            target.ItemPropertyChanging -= TargetOnItemPropertyChanging;
+            Assert.That(triggered, Is.False);
+        }
+
+        [Test]
         public void DisableNotifications_Disposed_CallsResetEvents()
         {
             var countTriggered = false;
@@ -1941,13 +2253,19 @@ namespace SniffCore.Collections.Tests
             }
         }
 
-        private class Item : INotifyPropertyChanged
+        private class Item : INotifyPropertyChanged, INotifyPropertyChanging
         {
             public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangingEventHandler PropertyChanging;
 
             public void OnPropertyChanged()
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Property"));
+            }
+
+            public void OnPropertyChanging()
+            {
+                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs("Property"));
             }
         }
 

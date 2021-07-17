@@ -41,12 +41,20 @@ namespace SniffCore.Collections
     ///     {
     ///         Items = new ObservableList<string>(new DispatcherInvokator());
     ///         Items.CatchPropertyChanged = true;
+    ///         Items.CatchPropertyChanging = true;
     ///         Items.ItemPropertyChanged += OnItemPropertyChanged;
+    ///         Items.ItemPropertyChanging += OnItemPropertyChanging;
     ///     }
     /// 
     ///     public ObservableList<string> Items { get; }
     /// 
     ///     private void OnItemPropertyChanged(string sender, PropertyChangedEventArgs e)
+    ///     {
+    ///         // var item = sender.ToString();
+    ///         // e.PropertyName
+    ///     }
+    /// 
+    ///     private void OnItemPropertyChanging(string sender, PropertyChangingEventArgs e)
     ///     {
     ///         // var item = sender.ToString();
     ///         // e.PropertyName
@@ -75,6 +83,7 @@ namespace SniffCore.Collections
     public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanging, INotifyPropertyChanged
     {
         private bool _catchPropertyChanged;
+        private bool _catchPropertyChanging;
         private DisableNotifications _disableNotify;
         private IInvokator _invokator;
 
@@ -132,6 +141,25 @@ namespace SniffCore.Collections
         }
 
         /// <summary>
+        ///     Gets or sets the value indicating of the <see cref="INotifyPropertyChanging.PropertyChanging" /> is taken from the
+        ///     elements in the collection and forwarded by <see cref="INotifyPropertyChanging" />.
+        /// </summary>
+        public bool CatchPropertyChanging
+        {
+            get => _catchPropertyChanging;
+            set
+            {
+                if (_catchPropertyChanging == value)
+                    return;
+                _catchPropertyChanging = value;
+                if (value)
+                    CatchItemPropertyChanging();
+                else
+                    IgnoreItemPropertyChanging();
+            }
+        }
+
+        /// <summary>
         ///     Gets or sets the value indicating of the <see cref="INotifyPropertyChanged.PropertyChanged" /> is taken from the
         ///     elements in the collection and forwarded by <see cref="ItemPropertyChanged" />.
         /// </summary>
@@ -166,6 +194,11 @@ namespace SniffCore.Collections
         public event PropertyChangingEventHandler PropertyChanging;
 
         /// <summary>
+        ///     Raised the forwarded <see cref="INotifyPropertyChanging.PropertyChanging" /> from an element of the list.
+        /// </summary>
+        public event EventHandler<PropertyChangingEventArgs> ItemPropertyChanging;
+
+        /// <summary>
         ///     Raised the forwarded <see cref="INotifyPropertyChanged.PropertyChanged" /> from an element of the list.
         /// </summary>
         public event EventHandler<PropertyChangedEventArgs> ItemPropertyChanged;
@@ -196,6 +229,7 @@ namespace SniffCore.Collections
                 {
                     var index = Items.Count;
                     base.InsertItem(index, item);
+                    CatchItemPropertyChanging(item);
                     CatchItemPropertyChanged(item);
                 }
 
@@ -246,6 +280,7 @@ namespace SniffCore.Collections
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
+                IgnoreItemPropertyChanging();
                 IgnoreItemPropertyChanged();
                 base.ClearItems();
 
@@ -268,6 +303,7 @@ namespace SniffCore.Collections
                 OnPropertyChanging(Binding.IndexerName);
 
                 base.InsertItem(index, item);
+                CatchItemPropertyChanging(item);
                 CatchItemPropertyChanged(item);
 
                 OnPropertyChanged(nameof(Count));
@@ -319,11 +355,12 @@ namespace SniffCore.Collections
                     if (condition(item))
                     {
                         removed.Add(item);
+                        IgnoreItemPropertyChanging(item);
                         IgnoreItemPropertyChanged(item);
                         base.RemoveItem(i--);
                     }
                 }
-                
+
                 OnPropertyChanged(nameof(Count));
                 OnPropertyChanged(Binding.IndexerName);
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed));
@@ -347,6 +384,7 @@ namespace SniffCore.Collections
                 {
                     var item = Items[index];
                     removedItems.Add(item);
+                    IgnoreItemPropertyChanging(item);
                     IgnoreItemPropertyChanged(item);
                     base.RemoveItem(index);
                 }
@@ -445,8 +483,8 @@ namespace SniffCore.Collections
                 base.ClearItems();
                 foreach (var item in items)
                 {
-                    var index = Items.Count;
-                    base.InsertItem(index, item);
+                    var position = Items.Count;
+                    base.InsertItem(position, item);
                 }
 
                 OnPropertyChanged(Binding.IndexerName);
@@ -513,6 +551,7 @@ namespace SniffCore.Collections
                 OnPropertyChanging(nameof(Count));
                 OnPropertyChanging(Binding.IndexerName);
 
+                IgnoreItemPropertyChanging(removedItem);
                 IgnoreItemPropertyChanged(removedItem);
                 base.RemoveItem(index);
 
@@ -536,7 +575,9 @@ namespace SniffCore.Collections
                 OnPropertyChanging(Binding.IndexerName);
 
                 base.SetItem(index, item);
+                IgnoreItemPropertyChanging(originalItem);
                 IgnoreItemPropertyChanged(originalItem);
+                CatchItemPropertyChanging(item);
                 CatchItemPropertyChanged(item);
 
                 OnPropertyChanged(Binding.IndexerName);
@@ -623,6 +664,22 @@ namespace SniffCore.Collections
                 CollectionChanged?.Invoke(this, e);
         }
 
+        private void CatchItemPropertyChanging()
+        {
+            if (CatchPropertyChanging)
+                for (var i = 0; i < Count; ++i)
+                    CatchItemPropertyChanging(Items[i]);
+        }
+
+        private void CatchItemPropertyChanging(T item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging += NotifyItemPropertyChanging;
+        }
+
         private void CatchItemPropertyChanged()
         {
             if (CatchPropertyChanged)
@@ -639,6 +696,21 @@ namespace SniffCore.Collections
                 notifyItem.PropertyChanged += NotifyItemPropertyChanged;
         }
 
+        private void IgnoreItemPropertyChanging()
+        {
+            for (var i = 0; i < Count; ++i)
+                IgnoreItemPropertyChanging(Items[i]);
+        }
+
+        private void IgnoreItemPropertyChanging(T item)
+        {
+            if (!CatchPropertyChanging)
+                return;
+
+            if (item is INotifyPropertyChanging notifyItem)
+                notifyItem.PropertyChanging -= NotifyItemPropertyChanging;
+        }
+
         private void IgnoreItemPropertyChanged()
         {
             for (var i = 0; i < Count; ++i)
@@ -652,6 +724,12 @@ namespace SniffCore.Collections
 
             if (item is INotifyPropertyChanged notifyItem)
                 notifyItem.PropertyChanged -= NotifyItemPropertyChanged;
+        }
+
+        private void NotifyItemPropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            if (CatchPropertyChanging)
+                ItemPropertyChanging?.Invoke(sender, e);
         }
 
         private void NotifyItemPropertyChanged(object sender, PropertyChangedEventArgs e)

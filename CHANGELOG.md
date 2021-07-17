@@ -8,6 +8,8 @@ CatchItemPropertyChanged for ObservableDictionary
 CatchItemPropertyChanging for ObservableDictionary and ObservableList
 
 ## [Unreleased]
+### Added
+CatchItemPropertyChanging for the ObservableList
 
 ## [1.0.0] - 2021-06-13
 ### Added
