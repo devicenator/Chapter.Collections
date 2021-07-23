@@ -9,8 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [1.1.0] - 2021-07-17
 ### Added
-CatchItemPropertyChanging for the ObservableList
-CatchItemPropertyChanging and CatchItemPropertyChanged for ObservableDictionary
+* CatchItemPropertyChanging for the ObservableList
+* CatchItemPropertyChanging and CatchItemPropertyChanged for ObservableDictionary
 
 ## [1.0.0] - 2021-06-13
 ### Added
