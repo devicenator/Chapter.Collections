@@ -11,9 +11,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 
-// ReSharper disable MemberCanBeProtected.Global
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace SniffCore.Collections
 {
     /// <summary>

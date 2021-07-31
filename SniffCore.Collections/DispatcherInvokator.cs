@@ -6,8 +6,6 @@
 using System;
 using System.Windows.Threading;
 
-// ReSharper disable IntroduceOptionalParameters.Global
-
 namespace SniffCore.Collections
 {
     /// <summary>
