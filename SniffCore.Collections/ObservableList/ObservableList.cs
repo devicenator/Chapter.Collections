@@ -11,6 +11,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 
+// ReSharper disable once CheckNamespace
+
 namespace SniffCore.Collections
 {
     /// <summary>

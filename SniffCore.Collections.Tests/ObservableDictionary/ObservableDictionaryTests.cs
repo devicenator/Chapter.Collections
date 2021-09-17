@@ -7,6 +7,8 @@ using System.Linq;
 using System.Windows.Data;
 using NUnit.Framework;
 
+// ReSharper disable once CheckNamespace
+
 namespace SniffCore.Collections.Tests
 {
     [TestFixture]
