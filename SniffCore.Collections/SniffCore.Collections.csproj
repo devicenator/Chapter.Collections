@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <Authors>David Wendland</Authors>
     <Description>SniffCore.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.</Description>
-    <Copyright>Copyright (c) 2021 David Wendland</Copyright>
+    <Copyright>Copyright (c) 2022 David Wendland</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>http://www.sniffcore.com</PackageProjectUrl>
     <PackageIcon>Icon.png</PackageIcon>
