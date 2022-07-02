@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Ideas/Upcoming]
 
 ## [Unreleased]
+### Changed
+* Upgrade to net6
 
 ## [1.1.0] - 2021-07-17
 ### Added
