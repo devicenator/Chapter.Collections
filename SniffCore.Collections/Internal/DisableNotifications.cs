@@ -7,15 +7,14 @@ using System;
 
 // ReSharper disable once CheckNamespace
 
-namespace SniffCore.Collections
-{
-    internal class DisableNotifications : IDisposable
-    {
-        public void Dispose()
-        {
-            Disposed?.Invoke(this, EventArgs.Empty);
-        }
+namespace SniffCore.Collections;
 
-        public event EventHandler Disposed;
+internal class DisableNotifications : IDisposable
+{
+    public void Dispose()
+    {
+        Disposed?.Invoke(this, EventArgs.Empty);
     }
+
+    public event EventHandler Disposed;
 }
