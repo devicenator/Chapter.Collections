@@ -1,11 +1,11 @@
-SniffCore.Collections
+Chapter.Collections
 ===
 
-SniffCore.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.
+Chapter.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.
 
 ## How To
-* [NuGet](https://www.nuget.org/packages/SniffCore.Collections)
-* [GitHub](https://github.com/devicenator/SniffCore.Collections)
+* [NuGet](https://www.nuget.org/packages/Chapter.Collections)
+* [GitHub](https://github.com/devicenator/Chapter.Collections)
 
 ## License
 Copyright (c) David Wendland. All rights reserved.  

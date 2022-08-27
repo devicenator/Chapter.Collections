@@ -7,11 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Windows.Data;
 
 // ReSharper disable once CheckNamespace
 
-namespace SniffCore.Collections;
+namespace Chapter.Collections;
 
 /// <summary>
 ///     A dictionary implementing <see cref="INotifyCollectionChanged" />, <see cref="INotifyPropertyChanging" /> and
@@ -83,6 +82,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
     private bool _catchPropertyChanging;
     private DisableNotifications _disableNotify;
     private IInvokator _invokator;
+    private const string indexerName = "Item[]";
 
     /// <summary>
     ///     Creates a new instance of <see cref="ObservableDictionary{TKey,TValue}" />.
@@ -275,7 +275,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         {
             _invokator.Invoke(() =>
             {
-                OnPropertyChanging(Binding.IndexerName);
+                OnPropertyChanging(indexerName);
 
                 if (ContainsKey(key))
                 {
@@ -302,7 +302,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
                     OnPropertyChanged(nameof(Count));
                 }
 
-                OnPropertyChanged(Binding.IndexerName);
+                OnPropertyChanged(indexerName);
             });
         }
     }
@@ -345,7 +345,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var oldItem = base[key];
             base.Remove(key);
@@ -356,7 +356,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
 
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem));
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
         });
 
         return true;
@@ -372,7 +372,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             base.Add(key, value);
             CatchItemPropertyChanging(key);
@@ -382,7 +382,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
 
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value));
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
         });
     }
 
@@ -394,7 +394,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             IgnoreItemPropertyChanging();
             IgnoreItemPropertyChanged();
@@ -402,7 +402,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
 
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
         });
     }
 
@@ -428,7 +428,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         _invokator.Invoke(() =>
         {
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }

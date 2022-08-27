@@ -7,19 +7,16 @@ using System;
 
 // ReSharper disable once CheckNamespace
 
-namespace SniffCore.Collections;
+namespace Chapter.Collections;
 
 /// <summary>
-///     Invokes actions directly.
+///     Provides a way how to invoke an action.
 /// </summary>
-public sealed class DirectInvokator : IInvokator
+public interface IInvokator
 {
     /// <summary>
     ///     Invokes an action.
     /// </summary>
     /// <param name="action">The action to invoke.</param>
-    public void Invoke(Action action)
-    {
-        action();
-    }
+    void Invoke(Action action);
 }

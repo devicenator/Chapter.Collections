@@ -9,11 +9,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Data;
 
 // ReSharper disable once CheckNamespace
 
-namespace SniffCore.Collections;
+namespace Chapter.Collections;
 
 /// <summary>
 ///     A list implementing <see cref="INotifyCollectionChanged" />, <see cref="INotifyPropertyChanging" /> and
@@ -85,6 +84,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     private bool _catchPropertyChanging;
     private DisableNotifications _disableNotify;
     private IInvokator _invokator;
+    private const string indexerName = "Item[]";
 
     /// <summary>
     ///     Creates a new instance of <see cref="ObservableList{T}" />.
@@ -221,7 +221,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var itemsToAdd = items.ToArray();
             foreach (var item in itemsToAdd)
@@ -233,7 +233,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
             }
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -257,13 +257,13 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var tmp = Items[index1];
             Items[index1] = Items[index2];
             Items[index2] = tmp;
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, Items[index1], Items[index2]));
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, Items[index2], Items[index1]));
         });
@@ -277,14 +277,14 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             IgnoreItemPropertyChanging();
             IgnoreItemPropertyChanged();
             base.ClearItems();
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -299,14 +299,14 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             base.InsertItem(index, item);
             CatchItemPropertyChanging(item);
             CatchItemPropertyChanged(item);
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         });
     }
@@ -345,7 +345,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var removed = new List<T>();
             for (var i = 0; i < Count; i++)
@@ -361,7 +361,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
             }
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed));
         });
     }
@@ -376,7 +376,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var removedItems = new List<T>();
             for (var i = 0; i < count; ++i)
@@ -389,7 +389,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
             }
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems));
         });
     }
@@ -401,7 +401,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.ToList();
             items.Sort();
@@ -412,7 +412,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(index, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -425,7 +425,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.ToList();
             items.Sort(comparer);
@@ -436,7 +436,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(index, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -449,7 +449,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.ToList();
             items.Sort(comparison);
@@ -460,7 +460,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(index, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -475,7 +475,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.ToList();
             items.Sort(index, count, comparer);
@@ -486,7 +486,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(position, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -500,7 +500,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.OrderBy(sorter).ToList();
             base.ClearItems();
@@ -510,7 +510,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(index, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -522,7 +522,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
     {
         _invokator.Invoke(() =>
         {
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             var items = Items.Reverse().ToList();
             base.ClearItems();
@@ -532,7 +532,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
                 base.InsertItem(index, item);
             }
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }
@@ -548,14 +548,14 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
             var removedItem = this[index];
 
             OnPropertyChanging(nameof(Count));
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             IgnoreItemPropertyChanging(removedItem);
             IgnoreItemPropertyChanged(removedItem);
             base.RemoveItem(index);
 
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
         });
     }
@@ -571,7 +571,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         {
             var originalItem = this[index];
 
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             base.SetItem(index, item);
             IgnoreItemPropertyChanging(originalItem);
@@ -579,7 +579,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
             CatchItemPropertyChanging(item);
             CatchItemPropertyChanged(item);
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, originalItem, item, index));
         });
     }
@@ -595,12 +595,12 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         {
             var removedItem = this[oldIndex];
 
-            OnPropertyChanging(Binding.IndexerName);
+            OnPropertyChanging(indexerName);
 
             base.RemoveItem(oldIndex);
             base.InsertItem(newIndex, removedItem);
 
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex));
         });
     }
@@ -628,7 +628,7 @@ public class ObservableList<T> : Collection<T>, INotifyCollectionChanged, INotif
         _invokator.Invoke(() =>
         {
             OnPropertyChanged(nameof(Count));
-            OnPropertyChanged(Binding.IndexerName);
+            OnPropertyChanged(indexerName);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
     }

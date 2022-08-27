@@ -9,7 +9,7 @@ using System.Linq;
 
 // ReSharper disable once CheckNamespace
 
-namespace SniffCore.Collections;
+namespace Chapter.Collections;
 
 /// <summary>
 ///     Provides additional actions on an <see cref="IEnumerable{T}" />.

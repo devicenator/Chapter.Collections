@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <Version>2.0.0</Version>
+    <TargetFramework>net6.0</TargetFramework>
+    <Version>1.0.0</Version>
     <Authors>Devicenator</Authors>
     <Company>my-libraries</Company>
-    <Description>SniffCore.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.</Description>
+    <Description>Chapter.Collections brings some kind of collections for a more easy work with bound lists in an MVVM environment.</Description>
     <Copyright>Copyright (c) 2022 David Wendland</Copyright>
-    <PackageProjectUrl>https://github.com/devicenator/SniffCore.Collections</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/devicenator/Chapter.Collections</PackageProjectUrl>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/devicenator/SniffCore.Collections</RepositoryUrl>
+    <RepositoryUrl>https://github.com/devicenator/Chapter.Collections</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
